@@ -30,12 +30,12 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 📊 Example Results
 Real Part of CSI
-![Real Part](images/csi_real.jpg)
+images/csi_real.jpg
 
 
 
 Imaginary Part of CSI
-![Imaginary Part](images/csi_imag.jpg)
+images/csi_imag.jpg
 🔎 Applications
 
 MIMO channel modeling & analysis
