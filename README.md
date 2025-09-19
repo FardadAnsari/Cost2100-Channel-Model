@@ -29,7 +29,7 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 
 ### Real Part of CSI
-![Real Part](https://github.com/FardadAnsari/Cost2100-Channel-Model/blob/main/images/csi_real.png ?raw=true)
+![Real Part](https://github.com/FardadAnsari/Cost2100-Channel-Model/blob/main/images/csi_real.png?raw=true)
 
 ### Imaginary Part of CSI
 ![Imaginary Part](images/csi_imag.png)
