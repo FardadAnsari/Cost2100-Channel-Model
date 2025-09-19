@@ -29,11 +29,8 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 
 
-![Real Part](images/csi_real.png)
-
-
-![Imaginary Part](images/csi_imag.png)
-
+<img src="images/csi_real.png" alt="Real Part" />
+<img src="images/csi_imag.png" alt="Imaginary Part" />
 ---
 
 ## 🔎 Applications
