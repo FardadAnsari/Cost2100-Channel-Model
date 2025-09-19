@@ -19,6 +19,6 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 
 3. **Generate impulse response (IR)**
-
-```ir_vla = create_IR_omni_MIMO_VLA(link_use, freq, delta_f, 'Wideband');
+    ```matlab 
+   ir_vla = create_IR_omni_MIMO_VLA(link_use, freq, delta_f, 'Wideband');
 
