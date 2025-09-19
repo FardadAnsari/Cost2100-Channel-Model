@@ -30,7 +30,7 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 📊 Example Results
 Real Part of CSI
-![Real Part](images/csi_real.jpg)
+![Real Part](https://raw.githubusercontent.com/<your-username>/<your-repo>/main/images/csi_real.jpg)
 
 
 
