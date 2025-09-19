@@ -25,6 +25,7 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 4. **Transform into Angular–Delay domain**
  ```matlab
    H_ang_delay = fftshift(fft(h_da, [], 2), 2);
+```
 
 
 5. **Examples**
