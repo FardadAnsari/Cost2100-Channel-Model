@@ -17,3 +17,8 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
    ```matlab
    [paraEx, paraSt, link, env] = cost2100(...);
 
+
+3. **Generate impulse response (IR)**
+
+```ir_vla = create_IR_omni_MIMO_VLA(link_use, freq, delta_f, 'Wideband');
+
