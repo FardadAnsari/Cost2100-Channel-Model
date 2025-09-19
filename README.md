@@ -28,16 +28,19 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 
 
-📊 Example Results
-Real Part of CSI
+### Real Part of CSI
 ![Real Part](https://raw.githubusercontent.com/FardadAnsari/Cost2100-Channel-Model/main/images/csi_real.jpg)
 
-
-
-Imaginary Part of CSI
+### Imaginary Part of CSI
 ![Imaginary Part](https://raw.githubusercontent.com/FardadAnsari/Cost2100-Channel-Model/main/images/csi_imag.jpg)
-🔎 Applications
 
+---
+
+## 🔎 Applications
+- MIMO channel modeling & analysis  
+- CSI feedback & compression (CsiNet, CLNet, CLLWCsiNet, etc.)  
+- Beamforming, precoding, and massive MIMO research  
+- Dataset creation for deep learning in wireless communications
 MIMO channel modeling & analysis
 
 CSI feedback & compression (CsiNet, CLNet, CLLWCsiNet)
