@@ -29,10 +29,10 @@ This repository demonstrates how to generate **Channel State Information (CSI)**
 
 
 ### Real Part of CSI
-![Real Part](images/csi_real.jpg)
+![Real Part](images/csi_real.png)
 
 ### Imaginary Part of CSI
-![Imaginary Part](images/csi_imag.jpg)
+![Imaginary Part](images/csi_imag.png)
 
 ---
 
