@@ -1,153 +1,107 @@
-# Flat Fading with COST2100 — README
+# Flat Fading with COST2100 — README (Explanations Only)
 
-This guide shows how to generate and analyze a **flat-fading (narrowband)** wireless channel using the **COST2100** model. It accompanies the MATLAB script `demo_flat_siso_single_tone.m` and explains the assumptions, equations, how to run, and what to verify (envelope statistics and Doppler spectrum).
-
----
-
-## 1) What is “flat fading”?
-
-A channel is **flat** (a.k.a. **frequency-nonselective**) when its **coherence bandwidth** \(B_c\) is greater than the signal bandwidth \(B\):
-
-\$$
-B \ll B_c \quad \Longleftrightarrow \quad \text{no significant frequency selectivity across } B.
-\$$
-
-In baseband complex notation, the received signal is
-
-\$$
-\boxed{\; y(t) = h(t)\,x(t) + n(t) \;}
-\$$
-
-where
-- \(x(t)\) is the transmitted waveform (bandwidth \(B\)),
-- \(h(t)\in\mathbb{C}\) is a **single complex Gaussian** channel gain that **varies in time** (due to mobility),
-- \(n(t)\) is additive noise.
-
-When there is no dominant LOS component, \(|h(t)|\) is **Rayleigh**-distributed; with LOS, it is **Rician**.
+This guide explains, in plain language, how to produce and verify a **flat‑fading (narrowband)** channel from the COST2100 model. All math has been removed; the focus is on concepts and practical steps.
 
 ---
 
-## 2) Time variation & Doppler
+## 1) What “flat fading” means
 
-With a terminal moving at speed \(v\) and carrier frequency \(f_c\), the **maximum Doppler shift** is
-
-\$$
-\boxed{\; f_D = \frac{v}{\lambda} = \frac{v f_c}{c}\;,}\qquad \lambda=\frac{c}{f_c}.
-\$$
-
-For motion with angle \(\theta\) relative to the arrival direction, the **instantaneous** Doppler of a path is \(f_{d}(\theta)=f_D\cos\theta\). In Clarke/Jakes’ isotropic model, the Doppler power spectral density (PSD) is
-
-\$$
-S_h(f) = \frac{1}{\pi f_D\sqrt{1-(f/f_D)^2}}\;\mathbf{1}_{\{|f|< f_D\}}.
-\$$
-
-In practice we **estimate** the Doppler PSD from a time sequence of channel samples.
+- A channel is **flat** when your signal bandwidth is small enough that all frequencies in the band experience the **same** channel gain.
+- In this case, the channel can be treated as a **single complex number that changes over time** (because of motion). This is much simpler than a frequency‑selective channel with many taps.
 
 ---
 
-## 3) From COST2100 to a flat channel
+## 2) How we get flat fading from COST2100
 
-COST2100 returns a **wideband** channel impulse response (IR) per snapshot. Let \(h$$n,\ell$$\) be the discrete-time IR at snapshot \(n\) and delay-tap \(\ell\). Its FFT w.r.t. delay yields the frequency response \(H$$n,k$$\) on subcarrier/bin \(k\):
+COST2100 builds a **wideband** channel (many delay taps). We convert that to flat fading by:
 
-\$$
-H$$n,k$$ \,=\, \sum_{\ell} h$$n,\ell$$\,e^{-j2\pi k\ell/K}.
-\$$
+1. Generating the channel impulse response for each snapshot (time step).
+2. Converting each snapshot to a frequency response across many closely‑spaced frequency bins.
+3. **Picking one bin at the center** of the band (or averaging a few bins around it). That single complex value per snapshot is our **flat‑fading coefficient**.
+4. Optionally normalizing so the average power is one (handy for comparisons).
 
-To obtain a **flat-fading** coefficient per snapshot, we
-
-- **pick the center bin** \(k_c\) (or **average a few bins** around it if desired) and define
-
-\$$
-\boxed{\; h_{\text{flat}}$$n$$ = H$$n,k_c$$ \quad \text{(or)}\quad h_{\text{flat}}$$n$$ = \tfrac{1}{|\mathcal{K}|}\sum_{k\in\mathcal{K}} H$$n,k$$ \;,\;}
-\$$
-
-- optionally **normalize** to unit average power: \( h_{\text{flat}}$$n$$ \leftarrow h_{\text{flat}}$$n$$/\sqrt{\mathbb{E}$$|h_{\text{flat}}|^2$$} \).
-
-This produces a **single complex coefficient per snapshot**, i.e., a **narrowband** time-varying channel.
+Result: a sequence of complex numbers over time — your flat channel.
 
 ---
 
-## 4) Script you run
+## 3) What controls the time variation
 
-Use the provided MATLAB script:
+- **User speed and direction**: faster movement causes quicker fluctuations in the channel.
+- **Carrier frequency**: higher carrier means faster fluctuations for the same speed.
+- **Scattering environment**: with a clear line‑of‑sight (LOS) the envelope varies less; in rich scattering it varies more.
 
-**`demo_flat_siso_single_tone.m`**
-
-Key knobs near the top:
-
-- `fc` — carrier frequency (Hz)
-- `BW` — tiny bandwidth around `fc` (e.g., `1e3` for 1 kHz)
-- `snapRate`, `snapNum` — snapshots per second and total count
-- **Mobility:**
-  - `v_mps` — speed in m/s (set `0` for static)
-  - `v_az_deg` — motion direction (degrees)
-
-The script:
-1. Calls **COST2100** with `SISO_omni`, Single link, `LOS`.
-2. Builds the SISO **impulse response per snapshot**, FFTs across delay to get \(H$$n,k$$\).
-3. **Collapses** to a single bin → \(h_{\text{flat}}$$n$$\).
-4. Plots:
-   - Envelope \(|h_{\text{flat}}$$n$$|\) vs time.
-   - Envelope histogram (for \(v=0\), it degenerates to a spike; for \(v>0\), it spreads).
-   - **Doppler PSD** with reported theoretical \(f_D\) and the estimated peak.
+In our script you can set the speed and heading; the figures will show you how fast the channel changes.
 
 ---
 
-## 5) Validation checklist
+## 4) What the script does
 
-1. **Flatness across the tiny band**: Adjacent-bin difference should be small
-\$$
-\frac{\langle |H$$n,k_c\!+\!1$$-H$$n,k_c\! -\!1$$|\rangle}{\langle |H$$n,k_c$$|\rangle} \;\text{is small.}
-\$$
-2. **Time invariance at \(v=0\)**: \(\operatorname{var}(|h_{\text{flat}}|)\) nearly zero.
-3. **Doppler peak near \(f_D\)** for \(v>0\): estimated PSD shows support \(|f|\lesssim f_D\).
-4. **Envelope statistics**: With rich scattering & no LOS, \(|h|\) ≈ **Rayleigh**; with LOS, **Rician**.
+Script: `demo_flat_siso_single_tone.m`
 
----
+- **Scenario**: single user, one BS antenna and one MS antenna (SISO), either static or moving.
+- **Bandwidth**: extremely small (for example, 1 kHz around the carrier) so the channel is effectively flat.
+- **Steps**:
+  - Calls COST2100 to generate wideband snapshots.
+  - Converts to frequency response per snapshot.
+  - Picks the center bin to form a single complex value per snapshot (flat channel).
+  - Normalizes (optional) and plots:
+    - Envelope vs. time (magnitude of the complex channel).
+    - Histogram of the envelope (helps see LOS vs. rich scattering behavior).
+    - A simple spectrum view that shows how quickly the channel fluctuates in time.
 
-## 6) Troubleshooting & tips
-
-- If the channel still looks frequency-selective, **reduce** `BW` or **average** a few bins around \(k_c\).
-- Increase `snapRate` and `snapNum` for a **cleaner Doppler PSD**.
-- To emulate a pure statistical flat channel (no COST2100 geometry), use a **Jakes/Clarke sum-of-sinusoids** generator; in this project, see the `slim_demo_flat` function (optional).
-- For **MIMO**, collapse each \(\mathrm{Rx}\times\mathrm{Tx}\) entry independently to obtain \(H_{\text{flat}}$$n$$\in\mathbb{C}^{N_r\times N_t}\).
+**Output**: a vector called `h_flat` — one complex value per snapshot.
 
 ---
 
-## 7) Quick reference formulas
+## 5) How to run
 
-- **Flat-fading baseband model**: \( y(t)=h(t)\,x(t)+n(t) \).
-- **Max Doppler**: \( f_D=v/\lambda=v f_c/c \).
-- **Doppler PSD (Jakes)**: \( S_h(f)=\big(\pi f_D\sqrt{1-(f/f_D)^2}\big)^{-1}\mathbf{1}_{\{|f|<f_D\}} \).
-- **Frequency response from taps**: \( H$$n,k$$=\sum_{\ell} h$$n,\ell$$ e^{-j2\pi k\ell/K} \).
-- **Flat reduction**: \( h_{\text{flat}}$$n$$=H$$n,k_c$$ \) or averaged over a tiny set \(\mathcal{K}\).
-
----
-
-## 8) Minimal example (pseudo-MATLAB)
-
-```matlab
-% Build IR per snapshot using COST2100 helpers
-h_snap = create_IR_omni(link, freq, delta_f, 'Wideband');  % $$snap x delay$$
-H_snap = fft(h_snap, $$$$, 2);                               % $$snap x K$$
-
-% Collapse to flat
-kc     = round((size(H_snap,2)+1)/2);
-h_flat = H_snap(:, kc);                    % $$snap x 1$$
-h_flat = h_flat ./ sqrt(mean(abs(h_flat).^2));
-
-% Doppler PSD
-$$PSD,faxis$$ = periodogram(h_flat, $$$$, 4096, snapRate, 'centered');
-```
+1. Put the script in the same folder as the official COST2100 functions (or add that folder to your MATLAB path).
+2. Open the script and adjust these knobs near the top:
+   - `fc` (carrier), `BW` (tiny bandwidth), `snapRate`, `snapNum`.
+   - Mobility: `v_mps` (speed) and `v_az_deg` (heading). Set speed to 0 for a static user.
+3. Run the script. Inspect the plots and the `h_flat` variable.
 
 ---
 
-## 9) Citations (when you publish)
+## 6) What to check to be confident it’s really flat
 
-- L. Liu *et al.*, “The COST 2100 MIMO channel model,” *IEEE Wireless Commun.*, 2012.
-- W. C. Jakes, *Microwave Mobile Communications*, Wiley, 1974.
+- **Across frequency**: values in nearby frequency bins look almost the same. If they don’t, reduce the bandwidth further or average a few bins.
+- **Over time**:
+  - With **zero speed**, the envelope should be almost constant.
+  - With **non‑zero speed**, the envelope fluctuates; faster speed → faster fluctuations.
+- **Envelope shape**:
+  - With a strong LOS component, the envelope clusters around a nonzero level (narrow distribution).
+  - In rich scattering without LOS, the envelope spreads more (broader distribution).
 
 ---
 
-**Happy simulating!** Tweak `v_mps`, `BW`, and `snapRate` to explore how time selectivity and frequency selectivity interact. 
+## 7) Troubleshooting
+
+- **Looks frequency‑selective**: narrow the bandwidth or average 3–5 bins around the center.
+- **Fluctuations are too slow**: increase the snapshot rate or increase speed.
+- **Plots are noisy**: run longer (more snapshots) or smooth/average more bins.
+- **Nothing changes over time**: make sure speed is not zero and the motion direction is sensible.
+
+---
+
+## 8) Extending beyond SISO
+
+- For **MIMO**, repeat the same reduction for each receive–transmit antenna pair to get a flat channel matrix per snapshot.
+- You can then study spatial properties (rank, conditioning) while still staying in the flat‑fading regime.
+
+---
+
+## 9) Files in this project
+
+- `demo_flat_siso_single_tone.m` — the runnable demo with mobility controls and plots.
+- (Optional) a short “slim” generator that produces a statistical flat channel without geometry, useful for sanity checks.
+
+---
+
+## 10) Summary
+
+- COST2100 gives you a realistic wideband channel.
+- By selecting a single frequency bin (or a tiny average) per snapshot, you get a **flat‑fading** time series.
+- Control speed and snapshot rate to explore how the channel changes over time.
+- Validate by checking near‑identical behavior across nearby frequencies and sensible time‑variation with speed.
 
