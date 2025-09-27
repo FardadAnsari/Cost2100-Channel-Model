@@ -1,52 +1,53 @@
-# Cost2100-Channel-Model
-This repo provides MATLAB implementations of the COST2100 channel model for realistic MIMO simulations. It generates channel state information (CSI) in domains such as spatial–delay and angular–delay, supports dataset creation for deep learning, and includes demo scripts for visualization and analysis in wireless communication research.
+# 8×8 Numerical Example — Three Paths (Sparse in Delay)
 
+This README summarizes a small sanity‑check example for an **8×8** setup with three propagation paths. We predict where the bright points (peaks) should appear in the **delay–angle DFT** domain.
 
-# COST2100 Channel Model – CSI Generation
+## Problem Setup
 
-This repository demonstrates how to generate **Channel State Information (CSI)** from the **COST2100 geometry-based stochastic channel model** using MATLAB.
+- Fix: \(A = T = 8\), element spacing \(d = \lambda/2\) (no grating lobes).
+- Three paths with delay \(\tau\), angle \(\theta\), and complex gain \(\alpha\) (polar form).
 
-## 📌 Process Overview
-1. **Set up scenario parameters**  
-   - Frequency range (e.g., 2.57–2.62 GHz)  
-   - Antenna array geometry (32-element BS)  
-   - MS position and velocity  
-   - LOS / NLOS scenario  
+| Path | \(\tau\) | \(\theta\) | \(\alpha\) |
+|:---:|:---:|:---:|:---:|
+| 1 | 2 | \(20^\circ\) | \(1\angle 20^\circ\) |
+| 2 | 5 | \(-35^\circ\) | \(0.7\angle (-50^\circ)\) |
+| 3 | 7 | \(0^\circ\) | \(0.4\angle 10^\circ\) |
 
-2. **Run COST2100**  
-   ```matlab
-   [paraEx, paraSt, link, env] = cost2100(...);
+> Interpretation tip: \(A\) can be read as the spatial DFT size (e.g., number of array elements across one dimension), and \(T\) as the temporal/lag DFT size.
 
+## Predicting the DFT Peak Bins (Sanity Check)
 
-3. **Generate impulse response (IR)**
-    ```matlab 
-   ir_vla = create_IR_omni_MIMO_VLA(link_use, freq, delta_f, 'Wideband');
+With \(d/\lambda = 1/2\), the signed spatial DFT bin index \(k_{\mathrm{sh}}\) is predicted by
 
-4. **Transform into Angular–Delay domain**
- ```matlab
-   H_ang_delay = fftshift(fft(h_da, [], 2), 2);
-```
+\[
+k_{\mathrm{sh}} \approx A\,\frac{d}{\lambda}\,\sin\theta
+= 8 \times \tfrac12 \sin\theta
+= 4\,\sin\theta.
+\]
 
+Evaluations:
 
-5. **Examples**
+- For \(\theta_1 = 20^\circ\): \(4\sin 20^\circ \approx 4\times 0.342 = 1.37 \Rightarrow k_{\mathrm{sh}} = +1\).
+- For \(\theta_2 = -35^\circ\): \(4\sin(-35^\circ) \approx 4\times (-0.574) = -2.30 \Rightarrow k_{\mathrm{sh}} = -2\).
+- For \(\theta_3 = 0^\circ\): \(\sin 0 = 0 \Rightarrow k_{\mathrm{sh}} = 0\).
 
-### Real Part of CSI
-![Real Part](images/csireal.png)
+## Expected Bright Points
 
-### Imaginary Part of CSI
-![Imaginary Part](images/csiimag.png)
+We therefore expect peaks near the following **(delay, signed‑bin)** coordinates:
+
+- \((\tau=2,\; k_{\mathrm{sh}}=+1)\)
+- \((\tau=5,\; k_{\mathrm{sh}}=-2)\)
+- \((\tau=7,\; k_{\mathrm{sh}}=0)\)
+
+These locations serve as a quick check against any simulation or processing pipeline that produces a delay–angle map (e.g., 2‑D DFT/beamspace).
 
 ---
 
-## 🔎 Applications
-- MIMO channel modeling & analysis  
-- CSI feedback & compression (CsiNet, CLNet, CLLWCsiNet, etc.)  
-- Beamforming, precoding, and massive MIMO research  
-- Dataset creation for deep learning in wireless communications
-MIMO channel modeling & analysis
+### How to Use in Your Repo
 
-CSI feedback & compression (CsiNet, CLNet, CLLWCsiNet)
+- Place this README at the root of the project or inside the example’s folder.
+- If you have code that generates the delay–angle spectrum, you can reference this section to verify the peak locations against your output.
 
-Precoding, beamforming, and massive MIMO experiments
+### License
 
-⚡ This repo helps generate and analyze realistic CSI data from COST2100, supporting wireless communication research and machine learning applications.
+Add your preferred license here (MIT, Apache‑2.0, etc.).
